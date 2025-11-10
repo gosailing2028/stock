@@ -12,12 +12,14 @@ export default function HomePage() {
   useEffect(() => {
     const auth = localStorage.getItem('auth');
     if (!auth) {
-      window.location.href = '/login';
+      // 使用相对路径，确保在 basePath 下正常跳转
+      window.location.href = 'login';
       return;
     }
 
     const fetchData = async () => {
       try {
+        // 使用相对路径，确保在 basePath 下请求 /stock/stocks.json
         const res = await fetch('stocks.json', { cache: 'no-store' });
         if (!res.ok) throw new Error('网络错误');
         const json = await res.json();
