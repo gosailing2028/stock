@@ -32,10 +32,6 @@ jobs:
         run: npm run build
         working-directory: frontend
 
-      - name: Export static site
-        run: npm run export
-        working-directory: frontend
-
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
