@@ -1,13 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -15,7 +13,8 @@ export default function Login() {
     // 测试账号：admin / 123456
     if (username === 'admin' && password === '123456') {
       localStorage.setItem('auth', 'yes');
-      router.push('/');
+      // 静态站点跳转到根目录 index.html（相对于 /stock/）
+      window.location.href = './';
     } else {
       setError('用户名或密码错误');
     }

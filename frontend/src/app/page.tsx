@@ -13,7 +13,8 @@ export default function HomePage() {
   useEffect(() => {
     const auth = localStorage.getItem('auth');
     if (!auth) {
-      window.location.href = 'login';
+      // 页面是静态导出，直接跳到 login.html，避免 /login 404
+      window.location.href = 'login.html';
       return;
     }
 
