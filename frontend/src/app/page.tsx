@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import LogoutButton from './components/LogoutButton';
 import { StockData } from './types';
+import StockTable from './components/StockTable';
 
 export default function HomePage() {
   const [data, setData] = useState<StockData | null>(null);
@@ -12,14 +13,12 @@ export default function HomePage() {
   useEffect(() => {
     const auth = localStorage.getItem('auth');
     if (!auth) {
-      // 使用相对路径，确保在 basePath 下正常跳转
       window.location.href = 'login';
       return;
     }
 
     const fetchData = async () => {
       try {
-        // 使用相对路径，确保在 basePath 下请求 /stock/stocks.json
         const res = await fetch('stocks.json', { cache: 'no-store' });
         if (!res.ok) throw new Error('网络错误');
         const json = await res.json();
@@ -48,11 +47,7 @@ export default function HomePage() {
           <p className="text-sm text-gray-500 mb-2">
             生成时间：{new Date(data.generated_at).toLocaleString()}
           </p>
-          {/* @ts-expect-error Server Component type import */}
-          {/* 直接使用客户端表格组件 */}
-          {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-          {/* @ts-ignore */}
-          {require('./components/StockTable').default({ stocks: data.stocks })}
+          <StockTable stocks={data.stocks} />
         </div>
       ) : (
         <p>暂无数据</p>
