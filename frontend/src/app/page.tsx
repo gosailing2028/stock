@@ -1,44 +1,60 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { StockData } from './types';
-import StockTable from './components/StockTable';
 import LogoutButton from './components/LogoutButton';
+import { StockData } from './types';
 
-export default function Home() {
-  const [data, setData] = useState<StockData>({ generated_at: '', count: 0, results: [] });
+export default function HomePage() {
+  const [data, setData] = useState<StockData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // 客户端拉取数据
-    fetch('/api/stocks', { cache: 'no-store' })
-      .then((res) => res.json())
-      .then((json) => setData(json))
-      .catch(() => setData({ generated_at: '', count: 0, results: [] }));
-
-    // 简单登录态检查
     const auth = localStorage.getItem('auth');
-    if (auth !== 'yes') {
+    if (!auth) {
       window.location.href = '/login';
+      return;
     }
+
+    const fetchData = async () => {
+      try {
+        const res = await fetch('stocks.json', { cache: 'no-store' });
+        if (!res.ok) throw new Error('网络错误');
+        const json = await res.json();
+        setData(json as StockData);
+      } catch (err: any) {
+        setError(err?.message || '加载失败');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
-  return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">储能股票分析</h1>
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-500">生成时间：{data.generated_at}</span>
-            <LogoutButton />
-          </div>
-        </div>
+  if (loading) return <main className="p-6">加载中...</main>;
+  if (error) return <main className="p-6">出错了：{error}</main>;
 
-        {data.count === 0 ? (
-          <div className="text-center py-12 text-gray-600">暂无数据，请先运行 Python 脚本生成 stocks.json</div>
-        ) : (
-          <StockTable stocks={data.results} />
-        )}
+  return (
+    <main className="p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-bold">储能股票分析</h1>
+        <LogoutButton />
       </div>
+      {data ? (
+        <div>
+          <p className="text-sm text-gray-500 mb-2">
+            生成时间：{new Date(data.generated_at).toLocaleString()}
+          </p>
+          {/* @ts-expect-error Server Component type import */}
+          {/* 直接使用客户端表格组件 */}
+          {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+          {/* @ts-ignore */}
+          {require('./components/StockTable').default({ stocks: data.stocks })}
+        </div>
+      ) : (
+        <p>暂无数据</p>
+      )}
     </main>
   );
 }
