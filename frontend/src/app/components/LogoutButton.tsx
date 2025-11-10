@@ -1,13 +1,10 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-
 export default function LogoutButton() {
-  const router = useRouter();
-
   const handleLogout = () => {
     localStorage.removeItem('auth');
-    router.push('/login');
+    // 静态站点直接跳转到 login.html，避免 /login 404
+    window.location.href = 'login.html';
   };
 
   return (
